@@ -20,13 +20,24 @@ class PokemonViewModel : ViewModel() {
             _uiState.update { it.copy(carregando = true, erro = null) }
             try {
                 val pokemons = repository.getPokemons()
-                _uiState.update { it.copy(lista = pokemons, carregando = false) }
+                _uiState.update { it.copy(lista = pokemons, listaFiltrada = pokemons, carregando = false) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(
                     carregando = false,
                     erro = "Erro ao carregar Pokémons: ${e.localizedMessage}"
                 ) }
             }
+        }
+    }
+
+    fun onPesquisaAlterada(novaPesquisa: String) {
+        _uiState.update { state ->
+            val filtrados = if (novaPesquisa.isEmpty()) {
+                state.lista
+            } else {
+                state.lista.filter { it.nome.contains(novaPesquisa, ignoreCase = true) }
+            }
+            state.copy(pesquisa = novaPesquisa, listaFiltrada = filtrados)
         }
     }
 }
